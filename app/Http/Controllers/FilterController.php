@@ -20,4 +20,15 @@ class FilterController extends Controller
 
          return response()->json($response);
     }
+
+    public function designing() {
+
+        $response = DB::select(' SELECT * FROM  Product AS a 
+         JOIN Category AS b  
+         ON  b.id = a.categoryID
+         WHERE b.name = ?           
+         ', ['Designing']);
+
+         return response()->json($response);
+    }
 }
