@@ -18,14 +18,14 @@ class ProductController extends Controller
 
    }
 
-   public function createProducts(Request $request)
+   public function createProduct(Request $request)
    {
 
        return 'product created';
 
    }
 
-   public function updateCategory() {
+   public function updateCategory($id) {
 
        return 'product updated successful';
    }
