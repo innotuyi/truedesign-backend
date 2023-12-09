@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FilterController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,5 +32,9 @@ Route::get('/products', [ProductController::class, 'getProducts']);
 Route::get('/product/{id}', [ProductController::class, 'singleProduct']);
 Route::post('/create-product', [ProductController::class, 'createProduct']);
 Route::put('/update-product/{id}', [ProductController::class, 'updateCategory']);
+
+
+Route::get('/printing', [FilterController::class, 'printing']);
+
 
 
