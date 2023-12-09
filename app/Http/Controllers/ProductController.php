@@ -51,16 +51,17 @@ class ProductController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-        $file = $request->file('photo1');
-        if ($file) {
-            $originalName = $file->getClientOriginalName();
-            $file->storeAs('public', $originalName);
-        }
+        $paths = [];
 
+            for ($i = 1; $i <= 3; $i++) {
+                $file = $request->file('photo' . $i);
 
-
-
-
+                if ($file) {
+                    $originalName = $file->getClientOriginalName();
+                    $path = $file->storeAs('public', $originalName);
+                    $paths[] = $path;
+                }
+            }
 
         $category = Product::create([
             'name'=>$request->name,
