@@ -36,6 +36,8 @@ Route::put('/update-product/{id}', [ProductController::class, 'updateCategory'])
 
 Route::get('/printing', [FilterController::class, 'printing']);
 Route::get('/designing', [FilterController::class, 'designing']);
+Route::get('/branding', [FilterController::class, 'branding']);
+
 
 
 
