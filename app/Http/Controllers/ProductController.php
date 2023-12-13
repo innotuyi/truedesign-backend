@@ -10,7 +10,7 @@ class ProductController extends Controller
 {
     public function getProducts() {
 
-        $response = Product::all();
+        $response = Product::orderBy('created_at', 'desc')->get();
 
         return response()->json($response);
 
@@ -65,7 +65,7 @@ class ProductController extends Controller
 
         $category = Product::create([
             'name'=>$request->name,
-            'categoryID'=>$request->categoryID,
+            'categoryID'=>1,
             'description'=>$request->description,
             'photo1' => $request->file('photo1')->getClientOriginalName(),
             'photo2' => $request->file('photo2')->getClientOriginalName(),
