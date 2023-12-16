@@ -65,7 +65,7 @@ class ProductController extends Controller
 
         $category = Product::create([
             'name'=>$request->name,
-            'categoryID'=>1,
+            'categoryID'=>$request->categoryID,
             'description'=>$request->description,
             'photo1' => $request->file('photo1')->getClientOriginalName(),
             'photo2' => $request->file('photo2')->getClientOriginalName(),
