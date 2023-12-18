@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FilterController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
@@ -31,12 +34,25 @@ Route::put('/update/{id}', [CategoryController::class, 'updateCategory']);
 Route::get('/products', [ProductController::class, 'getProducts']);
 Route::get('/product/{id}', [ProductController::class, 'singleProduct']);
 Route::post('/create-product', [ProductController::class, 'createProduct']);
+Route::post('update-product/{id}', [ProductController::class, 'updateProduct']);
 Route::put('/update-product/{id}', [ProductController::class, 'updateCategory']);
 
 
 Route::get('/printing', [FilterController::class, 'printing']);
 Route::get('/designing', [FilterController::class, 'designing']);
 Route::get('/branding', [FilterController::class, 'branding']);
+
+Route::post('/create-contact', [ContactController::class, 'createContact']);
+Route::get('/contacts', [ContactController::class, 'contacts']);
+
+
+Route::get('/allContacts', [DashboardController::class, 'allContact']);
+Route::get('/allProducts', [DashboardController::class, 'allProducts']);
+
+
+Route::post('/login', [AuthController::class, 'login']);
+
+
 
 
 

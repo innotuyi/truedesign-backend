@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
     public function getProducts() {
 
-        $response = Product::orderBy('created_at', 'desc')->get();
-
+        $response = Product::join('Category', 'Product.categoryID', '=', 'Category.id')
+        ->select('Product.*', 'Category.name as category_name')
+        ->orderBy('Product.created_at', 'desc')
+        ->get();
+    
         return response()->json($response);
 
 
@@ -34,16 +38,60 @@ class ProductController extends Controller
 
    public function createProduct(Request $request)
    {
-    try {
+       try {
+           $rules = [
+               'name' => 'required|string|max:255',
+               'categoryID' => 'required|integer|max:255',
+               'description' => 'required|string|max:255',
+               'photo1' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+               'photo2' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+               'photo3' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+           ];
+   
+           $validator = Validator::make($request->all(), $rules);
+   
+           if ($validator->fails()) {
+               return response()->json(['errors' => $validator->errors()], 400);
+           }
+   
+           $filenames = [];
+   
+           for ($i = 1; $i <= 3; $i++) {
+               $file = $request->file('photo' . $i);
+   
+               if ($file && $file->isValid()) {
+                   $originalName = $file->getClientOriginalName();
+                   $filenames['photo' . $i] = $originalName;
+                   $file->storeAs('public', $originalName);
+               }
+           }
+   
+           $category = Product::create([
+               'name' => $request->name,
+               'categoryID' => $request->categoryID,
+               'description' => $request->description,
+               'photo1' => $filenames['photo1'] ?? null,
+               'photo2' => $filenames['photo2'] ?? null,
+               'photo3' => $filenames['photo3'] ?? null,
+           ]);
+   
+           return response()->json(['message' => 'category created successfully', 'data' => $category], 201);
+       } catch (\Exception $e) {
+           return response()->json(['message' => 'An error occurred while creating the product', 'error' => $e->getMessage()], 500);
+       }
+   }
 
+   public function updateProduct(Request $request, $productId)
+{
+    try {
         $rules = [
             'name' => 'required|string|max:255',
-            'categoryID'=> 'required|integer|max:255',
+            'categoryID' => 'required|integer|max:255',
             'description' => 'required|string|max:255',
-            'photo1' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'photo1' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'photo2' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo3' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
-        
 
         $validator = Validator::make($request->all(), $rules);
 
@@ -51,37 +99,44 @@ class ProductController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-        $paths = [];
+        $product = Product::findOrFail($productId);
 
-            for ($i = 1; $i <= 3; $i++) {
-                $file = $request->file('photo' . $i);
-
-                if ($file) {
-                    $originalName = $file->getClientOriginalName();
-                    $path = $file->storeAs('public', $originalName);
-                    $paths[] = $path;
-                }
+        // Delete existing images from storage
+        foreach (['photo1', 'photo2', 'photo3'] as $photo) {
+            if ($request->hasFile($photo) && $product->$photo) {
+                Storage::delete('public/' . $product->$photo);
             }
+        }
 
-        $category = Product::create([
-            'name'=>$request->name,
-            'categoryID'=>$request->categoryID,
-            'description'=>$request->description,
-            'photo1' => $request->file('photo1')->getClientOriginalName(),
-            'photo2' => $request->file('photo2')->getClientOriginalName(),
-            'photo3' => $request->file('photo3')->getClientOriginalName(),
+        // Upload new images to storage
+        $filenames = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $file = $request->file('photo' . $i);
 
+            if ($file && $file->isValid()) {
+                $originalName = $file->getClientOriginalName();
+                $filenames['photo' . $i] = $originalName;
+                $file->storeAs('public', $originalName);
+            }
+        }
 
+        // Update product information in the database
+        $product->update([
+            'name' => $request->name,
+            'categoryID' => $request->categoryID,
+            'description' => $request->description,
+            'photo1' => $filenames['photo1'] ?? $product->photo1,
+            'photo2' => $filenames['photo2'] ?? $product->photo2,
+            'photo3' => $filenames['photo3'] ?? $product->photo3,
         ]);
-        return response()->json(['message' => 'category created successfully', 'data' => $category], 201);
+
+        return response()->json(['message' => 'Product updated successfully', 'data' => $product], 200);
     } catch (\Exception $e) {
-        return response()->json(['message' => 'An error occurred while creating the product', 'error' => $e->getMessage()], 500);
+        return response()->json(['message' => 'An error occurred while updating the product', 'error' => $e->getMessage()], 500);
     }
+}
 
-    
-
-
-   }
+   
 
    public function updateCategory(Request $request,$id) {
 
