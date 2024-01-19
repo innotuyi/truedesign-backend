@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
 class AuthService
 {
 
-    public function registerCustomer($name, $role, $email, $password)
+    public function register( string $name,string $email, string $password)
     {
 
 
@@ -21,7 +21,6 @@ class AuthService
         $user = User::create([
             'name' => $name,
             'email' => $email,
-            'role' => $role,
             'password' => Hash::make($password),
 
         ]);
@@ -29,19 +28,18 @@ class AuthService
         return $user;
     }
 
-    public function registerAdmin($name, $email, $password)
-    {
+    // public function registerAdmin($name, $email, $password)
+    // {
 
-        $user = User::create([
-            'name' => $name,
-            'email' => $email,
-            'role' => 'admin',
-            'password' => Hash::make($password),
+    //     $user = User::create([
+    //         'name' => $name,
+    //         'email' => $email,
+    //         'password' => Hash::make($password),
 
-        ]);
+    //     ]);
 
-        return $user;
-    }
+    //     return $user;
+    // }
 
 
     public function login($email, $password)
@@ -65,4 +63,13 @@ class AuthService
             'token' => $plainTextToken
         ];
     }
+
+    
+    public function logout()
+    {
+        auth()->user()->tokens()->delete();
+
+        return true;
+    }
+
 }

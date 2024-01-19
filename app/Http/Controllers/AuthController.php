@@ -21,21 +21,21 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {      
-        
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-        ]);
-
-         $role = 'student';
-
-        if ($request->has('role')) {
-            $role = $request->input('role');
-        }
 
         try {
-            $this->service->registerCustomer($request->name, $role, $request->email, $request->password);
+            $rules = [
+                'name' => 'required',
+                'email' => 'required|email|unique:User',
+                'password' => 'required|min:6',
+            ];
+            
+    
+            $validator =Validator::make($request->all(), $rules);
+    
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 400);
+            }
+            $this->service->register($request->name,  $request->email, $request->password);
             return response()->json(["Users registered successfully"]);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
@@ -47,10 +47,6 @@ class AuthController extends Controller
     public function login(Request $request)
     {
 
-
-
-        
-      
         try {
 
             $rules = [
