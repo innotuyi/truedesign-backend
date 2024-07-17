@@ -12,7 +12,7 @@ class Order extends Model
 
     protected $fillable= [
 
-        'item',
+         'item',
          'quantity',
          'description'
     ];
